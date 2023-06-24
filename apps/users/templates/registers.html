@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Сброс пароля{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="text-center">Забыли пароль?</h1>
+            <p class="text-center">Введите ваш адрес электронной почты, чтобы получить новый пароль.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Адрес электронной почты</label>
+                    {{ form.email|add_class:"form-control" }}
+                    {% if form.email.errors %}
+                        <div class="alert alert-danger">
+                            {{ form.email.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Отправить письмо</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

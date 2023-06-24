@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+<div class="container mt-4">
+    <h2>Добро пожаловать на криптообменник!</h2>
+    <p>Здесь вы можете обменивать различные криптовалюты.</p>
+
+    <div class="row">
+
+        <!-- Карточка обмена криптовалюты -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Обмен криптовалют</h5>
+                    <form>
+                        <div class="form-group">
+                            <label for="fromCurrency">Продаете</label>
+                            <select class="form-control select2" id="fromCurrency">
+                                <option value="bitcoin" data-image="{% static 'assets/images/bitcoin.png' %}">Bitcoin</option>
+                                <option value="ethereum" data-image="{% static 'assets/images/ethereum.png' %}">Ethereum</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Количество</label>
+                            <input type="text" class="form-control" id="amount">
+                        </div>
+                        <div class="form-group">
+                            <label for="toCurrency">Получаете</label>
+                            <select class="form-control select2" id="toCurrency">
+                                <option value="bitcoin" data-image="{% static 'assets/images/bitcoin.png' %}">Bitcoin</option>
+                                <option value="ethereum" data-image="{% static 'assets/images/ethereum.png' %}">Ethereum</option>
+                              
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="result">Получаемое количество</label>
+                            <input type="text" class="form-control" id="result">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Обменять</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Добавление новой карточки для отзывов клиентов -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Отзывы клиентов</h5>
+                    <p class="card-text">"Очень нравится обменивать криптовалюты здесь!" - Иван</p>
+                    <p class="card-text">"Сервис отличный, всегда быстрый и надежный." - Алексей</p>
+                    <!-- Добавьте больше отзывов здесь -->
+                </div>
+            </div>
+        </div>
+        <!-- Конец карточки отзывов -->
+
+    </div>
+</div>
+</div>
+{% endblock %}

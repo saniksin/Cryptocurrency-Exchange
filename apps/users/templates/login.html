@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %} Вход {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="card w-175">
+        <div class="card-header text-center">
+            <h2>Вход в систему</h2>
+            <p class="text-muted">Пожалуйста, введите свои данные для входа.</p>
+        </div>
+        <div class="card-body">
+            {% if error %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username_or_email">Username/Email</label>
+                    {{ form.username_or_email }}
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    {{ form.password }}
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                </div>
+                <div class="form-group text-center">
+                    <a href="{% url 'password_reset' %}">Забыли пароль?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

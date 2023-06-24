@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <title>{% block title %}Криптообменник{% endblock %}</title>
+    <!-- Подключение стилей Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Подключение внешнего CSS-файла -->
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="{% static 'assets/js/main.js' %}"></script> <!-- Ваш файл скрипта -->
+</head>
+<body>
+
+    <!-- Модальное окно для входа на сайт и регистрации -->
+    <div class="modal fade" id="loginRegisterModal" tabindex="-1" role="dialog" aria-labelledby="loginRegisterModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginRegisterModalLabel">Вход / Регистрация</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Вкладки -->
+                    <ul class="nav nav-tabs" id="authTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="login-tab" data-toggle="tab" href="#login" role="tab" aria-controls="login" aria-selected="true">Войти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">Регистрация</a>
+                        </li>
+                    </ul>
+                    <!-- Контент вкладок -->
+                    <div class="tab-content" id="authTabContent">
+                        <!-- Форма входа -->
+                        <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                            <form action="{% url 'login' %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="loginEmail">Логин/Email</label>
+                                    {{login_form.username_or_email}}
+                                </div>
+                                <div class="form-group">
+                                    <label for="loginPassword">Пароль</label>
+                                    {{login_form.password}}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                                    <button type="submit" class="btn btn-primary">Войти</button>
+                                </div>
+                            </form>
+                        </div>                        
+                        <!-- Форма регистрации -->
+                        <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                            <form action="{% url 'register' %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="loginPassword">Username</label>
+                                    {{ registration_form.username }}
+                                    {% if registration_form.username.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ registration_form.username.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="registerEmail">Email</label>
+                                    {{ registration_form.email }}
+                                    {% if registration_form.email.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ registration_form.email.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="registerPassword">Пароль</label>
+                                    {{ registration_form.password }}
+                                    {% if registration_form.password.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ registration_form.password.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="registerPasswordConfirm">Повторите пароль</label>
+                                    {{ registration_form.password2 }}
+                                    {% if registration_form.password2.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ registration_form.password2.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                                    <button type="submit" class="btn btn-primary">Регистрация</button>
+                                </div>
+                            </form>
+                            
+                        </div>
+                        <div class="form-group text-center">
+                            <hr>
+                            <a href="{% url 'password_reset' %}">Забыли пароль?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-dark">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark ">
+                <a class="navbar-brand" href="{% url 'index' %}">Криптообменник</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'index' %}">Главная</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Новости</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'rules' %}">Правила</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'aml' %}">AML</a>
+                        </li>
+                    </ul>
+                    <div>
+                        {% if not request.user.is_authenticated %}
+                            <a href="#" class="btn btn-primary mr-2" data-toggle="modal" data-target="#loginRegisterModal" id="login-btn">Войти</a>
+                            <a href="#" class="btn btn-secondary" data-toggle="modal" data-target="#loginRegisterModal" id="register-btn">Зарегистрироваться</a>
+                        {% else %}
+                        <div class="dropdown">
+                            <a href="" class="dropdown-toggle" data-toggle="dropdown" id="dropdownMenuLink">
+                                <i class="icon-user"></i>{{request.user.email}}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="">Профиль</a>
+                                <a class="dropdown-item" href="{% url 'change_password' %}">Изменить пароль</a>
+                                <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    {% block content %}
+
+    {% endblock %}
+
+    <footer class="footer mt-auto py-3 bg-dark text-light">
+        <div class="container py-3">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h5 class="text-uppercase">Часы работы</h5>
+                    <p>Понедельник - Пятница, 9:00 - 18:00</p>
+                    <p>Суббота и Воскресенье, довольное время</p>
+                </div>
+                <div class="col-sm-4">
+                    <h5 class="text-uppercase">Контакты</h5>
+                    <p>Email: learningpythonwithme@gmail.com</p>
+                </div>
+                <div class="col-sm-4">
+                    <h5 class="text-uppercase">Телефон</h5>
+                    <p>+8 800-535-3535</p>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-3">
+                <a href="https://www.instagram.com/yourusername" class="mx-2"><i class="fab fa-instagram fa-2x"></i></a>
+                <a href="https://t.me/yourusername" class="mx-2"><i class="fab fa-telegram fa-2x"></i></a>
+                <a href="https://twitter.com/yourusername" class="mx-2"><i class="fab fa-twitter fa-2x"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Подключение скриптов Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#login-btn').click(function(){
+                $('#loginRegisterModal').modal('show');
+                $('.nav-tabs a[href="#login"]').tab('show');
+            });
+            $('#register-btn').click(function(){
+                $('#loginRegisterModal').modal('show');
+                $('.nav-tabs a[href="#register"]').tab('show');
+            });
+        });
+    </script>
+</body>
+</html>
