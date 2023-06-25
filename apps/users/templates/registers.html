@@ -1,26 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}Сброс пароля{% endblock %}
+{% block title %}Регистрация{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1 class="text-center">Забыли пароль?</h1>
-            <p class="text-center">Введите ваш адрес электронной почты, чтобы получить новый пароль.</p>
+<div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="card w-175">
+        <div class="card-header text-center">
+            <h2>Регистрация в системе</h2>
+            <p class="text-muted">Пожалуйста, введите свои данные для регистрации.</p>
+        </div>
+        <div class="card-body">
             <form method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="{{ form.email.id_for_label }}">Адрес электронной почты</label>
-                    {{ form.email|add_class:"form-control" }}
-                    {% if form.email.errors %}
+                    <label for="loginPassword">Username</label>
+                    {{ registration_form.username }}
+                    {% if registration_form.username.errors %}
                         <div class="alert alert-danger">
-                            {{ form.email.errors }}
+                            {{ registration_form.username.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    {{ registration_form.email }}
+                    {% if registration_form.email.errors %}
+                        <div class="alert alert-danger">
+                            {{ registration_form.email.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль</label>
+                    {{ registration_form.password }}
+                    {% if registration_form.password.errors %}
+                        <div class="alert alert-danger">
+                            {{ registration_form.password.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">Повторите пароль</label>
+                    {{ registration_form.password2 }}
+                    {% if registration_form.password2.errors %}
+                        <div class="alert alert-danger">
+                            {{ registration_form.password2.errors }}
                         </div>
                     {% endif %}
                 </div>
                 <div class="form-group text-center">
-                    <button type="submit" class="btn btn-primary">Отправить письмо</button>
+                    <button type="submit" class="btn btn-primary">Регистрация</button>
+                </div>
+                <div class="form-group text-center">
+                    <a href="{% url 'login' %}">Уже зарегистрированы? Войти</a>
                 </div>
             </form>
         </div>
