@@ -1,7 +1,10 @@
-{% extends "admin/base_site.html" %}
-{% load static %}
+{% extends "admin/base.html" %}
 
 {% block extrahead %}
-    <link rel="stylesheet" type="text/css" href="{% static 'assets/css/admin.css' %}">
     {{ block.super }}
+    <style>
+        .theme-toggle {
+            display: none;
+        }
+    </style>
 {% endblock %}

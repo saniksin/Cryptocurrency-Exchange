@@ -5,12 +5,6 @@
     padding: 20px;
 }
 
-.footer {
-    background-color: #f8f9fa;
-    padding: 20px;
-    text-align: center;
-}
-
 /* Стили для выпадающего списка */
 .select2-selection__rendered {
     line-height: 50px !important;
@@ -42,14 +36,15 @@
     margin-bottom: 0; /* Удаляет нижний отступ абзацев в футере */
 }
 
-/* Стили для футера */
-.footer {
-    background-color: #343a40;  /* Цвет фона футера */
-    color: #fff;  /* Цвет текста футера */
-    padding: 20px 0;
+.info {
+    color: blue;
 }
-
-.footer p {
-    margin-bottom: 0;  /* Удаляет нижний отступ абзацев в футере */
+.warning {
+    color: orange;
 }
-
+.error {
+    color: red;
+}
+.success {
+    color: green;
+}

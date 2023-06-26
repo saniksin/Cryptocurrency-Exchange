@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib import admin
-from apps.exchange.models import Cryptocurrency, FiatCurrency, ExchangeRate, Transaction, User
+from apps.exchange.models import Cryptocurrency, FiatCurrency, ExchangeRate, Transaction
 
 class CryptocurrencyAdmin(admin.ModelAdmin):
     list_display = ['name', 'code', 'current_price']

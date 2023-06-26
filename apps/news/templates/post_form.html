@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %} Добавить новость {% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card w-50">
+        <div class="card-header text-center">
+            {% if user.is_staff %}
+            <h2>Добавить новость</h2>
+            <p class="text-muted">Пожалуйста, заполните следующие поля.</p>
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    Пожалуйста, проверьте что вы верно ввели тему, описание и загрузили изображение. Затем, попробуйте снова!
+                </div>
+            {% endif %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Тема: </label>
+                    <input type="text" class="form-control" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" placeholder="Введите тему статьи">
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Описание: </label>
+                    <textarea class="form-control" id="{{ form.description.id_for_label }}" name="{{ form.description.name }}" rows="3" placeholder="Введите описание"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.image.id_for_label }}">Загрузите изображение</label>
+                    <input type="file" class="form-control-file" id="{{ form.image.id_for_label }}" name="{{ form.image.name }}">
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Опубликовать</button>
+                </div>
+            </form> 
+            {% endif %}
+
+            {% if not user.is_staff %}
+            <div class="alert alert-danger text-center">Только администратор может заполнить эту форму!</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

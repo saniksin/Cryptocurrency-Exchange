@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     #apps
     'apps.exchange',
+    'apps.news'
 ]
 
 MIDDLEWARE = [
@@ -114,6 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
+AUTH_USER_MODEL = 'users.User'
 
 LANGUAGE_CODE = 'ru'
 
@@ -147,3 +149,5 @@ EMAIL_HOST_USER = 'learningpythonwithme@gmail.com'
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+LOGIN_URL = 'login'

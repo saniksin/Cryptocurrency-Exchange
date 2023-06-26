@@ -126,7 +126,7 @@
                             <a class="nav-link" href="{% url 'index' %}">Главная</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Новости</a>
+                            <a class="nav-link" href="{% url 'news_posts' %}">Новости</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'rules' %}">Правила</a>
@@ -201,5 +201,10 @@
             });
         });
     </script>
+
+    {% block javascript %}
+
+    {% endblock %}
+    
 </body>
 </html>

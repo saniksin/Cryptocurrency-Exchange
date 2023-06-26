@@ -1,6 +1,4 @@
-from typing import Any
 from django.db import models
-
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
 
@@ -9,7 +7,7 @@ class UserManager(BaseUserManager):
 
     def create_user(self, email=None, password=None, **extra_fields):
         if not email:
-            raise ValueError("Вы должны вписать емейл!")
+            raise ValueError("Вы должны вписать емейл и юзернейм!")
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -47,14 +45,14 @@ class User(AbstractUser):
         related_query_name=r"%(app_label)s_%(class)ss",
     )
     
-    objests = UserManager()
+    objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
     def __str__(self):
-        return f'{self.email}'
+        return f'{self.username}'

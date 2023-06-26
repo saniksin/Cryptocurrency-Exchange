@@ -1,11 +1,11 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import PasswordResetForm, PasswordResetForm
 from django.contrib.auth.forms import SetPasswordForm
+from apps.users.models import User
 
 
 class LoginForm(forms.Form):
