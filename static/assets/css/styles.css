@@ -36,15 +36,4 @@
     margin-bottom: 0; /* Удаляет нижний отступ абзацев в футере */
 }
 
-.info {
-    color: blue;
-}
-.warning {
-    color: orange;
-}
-.error {
-    color: red;
-}
-.success {
-    color: green;
-}
+

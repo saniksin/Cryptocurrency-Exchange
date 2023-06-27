@@ -1,19 +1,34 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load message_tags %}
 
 {% block content %}
+    <!-- Итог взаимодействия -->  
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags|bootstrap}} alert-dismissible fade show text-center" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
 <div class="container mt-4">
+    <div class="text-center">
     <h2>Добро пожаловать на криптообменник!</h2>
     <p>Здесь вы можете обменивать различные криптовалюты.</p>
-
+    </div>
     <div class="row">
 
         <!-- Карточка обмена криптовалюты -->
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-md-6 d-flex">
+            <div class="card flex-fill d-flex flex-column">
                 <div class="card-body">
                     <h5 class="card-title">Обмен криптовалют</h5>
+                    <hr>
                     <form>
                         <div class="form-group">
                             <label for="fromCurrency">Продаете</label>
@@ -26,6 +41,7 @@
                             <label for="amount">Количество</label>
                             <input type="text" class="form-control" id="amount">
                         </div>
+                        <hr>
                         <div class="form-group">
                             <label for="toCurrency">Получаете</label>
                             <select class="form-control select2" id="toCurrency">
@@ -38,25 +54,44 @@
                             <label for="result">Получаемое количество</label>
                             <input type="text" class="form-control" id="result">
                         </div>
-                        <button type="submit" class="btn btn-primary">Обменять</button>
                     </form>
+                    
+                </div>
+                <div class="mt-auto p-3 d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary text-center">Обменять</button>
                 </div>
             </div>
         </div>
 
-        <!-- Добавление новой карточки для отзывов клиентов -->
-        <div class="col-md-6">
-            <div class="card mb-4">
+        <!-- Карточка отзывов клиентов -->
+        <div class="col-md-6 d-flex">
+            <div class="card flex-fill d-flex flex-column">
                 <div class="card-body">
                     <h5 class="card-title">Отзывы клиентов</h5>
-                    <p class="card-text">"Очень нравится обменивать криптовалюты здесь!" - Иван</p>
-                    <p class="card-text">"Сервис отличный, всегда быстрый и надежный." - Алексей</p>
-                    <!-- Добавьте больше отзывов здесь -->
+                    <hr>
+                    <div class="review-list">
+                        {% if reviews %}
+                            {% for review in reviews %}
+                            <div class="review-item">
+                                <blockquote class="blockquote mb-3">
+                                    <p class="mb-0">"{{ review.text }}"</p>
+                                    <footer class="blockquote-footer"> Опубликовано: {{review.created_at}} {{ review.user.username }} </footer>
+                                </blockquote>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>Отзывов пока нет.</p>
+                        {% endif %}
+                        
+                    </div>
+                </div>
+                
+                <div class="mt-auto p-3 d-flex justify-content-center">
+                    <a href="{% url 'reviews' %}" class="btn btn-primary">Читать больше отзывов</a>
                 </div>
             </div>
         </div>
         <!-- Конец карточки отзывов -->
-
     </div>
 </div>
 </div>

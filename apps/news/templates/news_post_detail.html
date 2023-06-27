@@ -1,134 +1,325 @@
 {% extends "base.html" %}
+{% load message_tags %}
 
 {% block content %}
 
-<div class="container my-4">
-  <div class="row justify-content-between mb-4">
-    <div class="col-auto">
-      <h2 class="text-center">{{ object.title }}</h2>
-    </div>
-  </div>
-  
-  <div class="row">
-    <div class="col-md-12 mb-4">
-      <div class="card h-100">
-        <img src="{{ object.image.url }}" class="card-img-top" style="max-height: 300px; object-fit: cover;" alt="{{ object.title }}">
-        <div class="card-body">
-          <p class="text-muted">Опубликовано: {{ object.created_at }} автором {{ object.author }}</p>
-          <p class="card-text">{{ object.description|linebreaks }}</p>
-
-          <div class="d-flex justify-content-between align-items-end mt-4">
-            <div>
-              <p class="text-muted">Просмотров: {{ object.views }}</p>
-            </div>
-            <div>
-              <form action="{% url 'like_post' object.pk %}" method="POST" class="d-inline-block">
-                {% csrf_token %}
-                <button type="submit" name="post_id" value="{{ object.pk }}" class="btn btn-primary">
-                        Понравилось
-                    <span class="badge bg-light text-dark">{{ object.total_likes }}</span>
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-                    <!-- Комментарии -->
-                    <div class="row">
-                        <div class="col-md-12">
-                        <h3 class="mt-4">Комментарии</h3>
-                        {% for comment in object.post_comments.all %}
-                        <div class="card my-3">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div class="text-muted">
-                                        <p class="mb-0">Автор: <span class="card-title mb-0 mt-0 text-left" style="color: black; font-size: 1.25rem;">{{ comment.author.username }}</span></p>
-                                    </div>
-                                    <p class="text-muted">Опубликовано: {{ comment.created_at }}</p>
-                                </div>                                
-                                <hr>
-                                <p class="card-text">{{ comment.text }}</p>
-                                {% if comment.author == request.user %}
-                                <hr>
-                                    <div class="text-right">
-                                        <button class="btn btn-primary edit-comment" data-url="{% url 'comment_edit' comment.id %}" data-toggle="modal" data-target="#editCommentModal-{{ comment.id }}">Редактировать</button>
-                                        <button class="btn btn-danger delete-comment">
-                                            <a href="{% url 'comment_delete' comment.pk %}" class="text-white">Удалить</a>
-                                        </button>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% empty %}
-                        <p>Комментариев пока нет.</p>
-                    {% endfor %}
-  
-                    <!-- Форма комментария -->
-                    {% if not user_commented and user.is_authenticated %}  
-                    <div class="row">
-                        <div class="col">
-                            <hr>
-                            <h3 class="my-4">Добавить комментарий</h3>
-                            <form method="POST" action="{% url 'add_comment_to_post' object.pk %}">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <label for="{{ form.text.id_for_label }}">Оставьте комментарий:</label>
-                                {{ form.text }}
-                            </div>
-                            <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">Отправить комментарий</button>
-                            </div>
-                            </form>
-                        </div>
-                    </div>
-                    {% endif %}
-
-
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="editCommentModal" tabindex="-1" role="dialog" aria-labelledby="editCommentModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editCommentModalLabel">Редактировать комментарий</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <!-- Итог взаимодействия -->  
+    {% if messages %}
+        {% for message in messages %}
+            <!-- Сообщение об ошибке или успехе -->
+            <div class="alert alert-{{message.tags|bootstrap}} alert-dismissible fade show text-center" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <form method="POST" id="editCommentForm">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                </form>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Контейнер для поста и комментариев -->
+    <div class="container my-4">
+        <!-- Заголовок поста -->
+        <div class="row justify-content-between mb-4">
+            <div class="col-auto">
+                <h2 class="text-center">{{ object.title }}</h2>
             </div>
         </div>
+
+  
+        <!-- Контейнер для самого поста -->
+        <div class="row">
+            <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                    <!-- Изображение поста -->
+                    <img src="{{ object.image.url }}" class="card-img-top" style="max-height: 300px; object-fit: cover;" alt="{{ object.title }}">
+                    <!-- Основное содержимое поста -->
+                    <div class="card-body">
+                        <!-- Информация об авторе и дате публикации -->
+                        <p class="text-muted">Опубликовано: {{ object.created_at }} автором {{ object.author }}</p>
+                        <!-- Текст поста -->
+                        <p class="card-text">{{ object.description|linebreaks }}</p>
+
+                        <!-- Блок с количеством просмотров и кнопкой "Понравилось" -->
+                        <div class="d-flex justify-content-between align-items-end mt-4">
+                            <!-- Количество просмотров -->
+                            <div>
+                                <p class="text-muted">Просмотров: {{ object.views }}</p>
+                            </div>
+                            <div>
+                                <!-- Проверка, залогинен ли пользователь, чтобы показать или скрыть кнопку "Понравилось" -->
+                                {% if user.is_authenticated %}
+                                    <!-- Форма для кнопки "Понравилось" -->
+                                    <form action="{% url 'like_post' object.pk %}" method="POST" class="d-inline-block">
+                                        {% csrf_token %}
+                                        <button type="submit" name="post_id" value="{{ object.pk }}" class="btn btn-primary">
+                                            Понравилось
+                                            <!-- Количество лайков -->
+                                            <span class="badge bg-light text-dark">{{ object.total_likes }}</span>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <!-- Если пользователь не залогинен, показывается предупреждение -->
+                                    <div class="alert alert-info">Чтобы оценить этот пост, пожалуйста, <a href="{% url 'login' %}">войдите в систему</a>.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Блок с кнопками редактирования и удаления для администратора -->
+                        {% if user.is_authenticated and user.is_staff %}
+                            <hr>
+                            <div class="mt-3 text-right">
+                                <!-- Кнопка редактирования -->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editModal">Редактировать</button>
+                                <!-- Кнопка удаления -->
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Удалить</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    
+        <!-- Блок комментариев -->
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Заголовок блока комментариев -->
+                <h3 class="mt-4">Комментарии</h3>
+                <!-- Итерация по каждому комментарию -->
+                {% for comment in object.post_comments.all %}
+                    <div class="card my-3">
+                        <div class="card-body">
+                            <!-- Информация о комментарии -->
+                            <div class="d-flex justify-content-between">
+                                <!-- Имя автора комментария -->
+                                <div class="text-muted">
+                                    <p class="mb-0">Автор: <span class="card-title mb-0 mt-0 text-left" style="color: black; font-size: 1.25rem;">{{ comment.author.username }}</span></p>
+                                </div>
+                                <!-- Время публикации комментария -->
+                                <p class="text-muted">Опубликовано: {{ comment.created_at }}</p>
+                            </div>                                
+                            <hr>
+                            <!-- Текст комментария -->
+                            <p class="card-text">{{ comment.text }}</p>
+                            <!-- Если текущий пользователь - автор комментария, показываются кнопки редактирования и удаления -->
+                            {% if comment.author == request.user %}
+                                <hr>
+                                <div class="text-right">
+                                    <!-- Кнопка редактирования -->
+                                    <button class="btn btn-primary edit-comment" data-url="{% url 'comment_edit' comment.id %}" data-text="{{ comment.text }}" data-toggle="modal" data-target="#editCommentModal-{{ comment.id }}">Редактировать</button>
+                                    <!-- Кнопка удаления -->
+                                    <button class="btn btn-danger delete-comment">
+                                        <a href="{% url 'comment_delete' comment.pk %}" class="text-white">Удалить</a>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- Если комментариев нет, показывается сообщение -->
+                    <p>Комментариев пока нет.</p>
+                {% endfor %}
+
+                <!-- Форма для нового комментария -->
+                {% if not user_commented and user.is_authenticated %}  
+                    <div class="row">
+                        <div class="col">
+                            <hr>
+                            <!-- Заголовок формы -->
+                            <h3 class="my-4">Добавить комментарий</h3>
+                            <!-- Форма для отправки комментария -->
+                            <form method="POST" action="{% url 'add_comment_to_post' object.pk %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <!-- Текстовое поле для комментария -->
+                                    <label for="{{ form.text.id_for_label }}">Оставьте комментарий:</label>
+                                    {{ form.text }}
+                                </div>
+                                <!-- Кнопка отправки формы -->
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">Отправить комментарий</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% elif not user.is_authenticated %}
+                    <!-- Если пользователь не залогинен, показывается предупреждение -->
+                    <div class="alert alert-info">Чтобы оставить комментарий, пожалуйста, <a href="{% url 'login' %}">войдите в систему</a>.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Модальное окно для редактирования комментария -->
+        <div class="modal fade" id="editCommentModal" tabindex="-1" role="dialog" aria-labelledby="editCommentModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <!-- Заголовок модального окна -->
+                        <h5 class="modal-title" id="editCommentModalLabel">Редактировать комментарий</h5>
+                        <!-- Кнопка для закрытия модального окна -->
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <!-- Форма для редактирования комментария -->
+                    <div class="modal-body">
+                        <form method="POST" id="editCommentForm">
+                            <p class="mb-3">Редактировать комментарий:</p>
+                            {% csrf_token %}
+                            <!-- Текстовое поле для редактирования текста комментария -->
+                            <div class="mb-3">{{ form.text }}</div> 
+                            <!-- Кнопка для сохранения изменений -->
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно Bootstrap для подтверждения удаления новостной статьи -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Подтвердите удаление</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Вы уверены, что хотите удалить этот пост?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отменить</button>
+                        <button type="button" class="btn btn-danger" onclick="deletePost({{ object.pk }})">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно редактирования новости -->
+        <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Редактирование новости</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Форма редактирования новости -->
+                        <form id="editForm" action="{% url 'post_update' object.pk %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <!-- Название новости -->
+                            <div class="form-group">
+                                <label for="title">Название</label>
+                                <input type="text" class="form-control" id="title" name="title" value="{{ object.title }}">
+                            </div>
+                            <!-- Описание новости -->
+                            <div class="form-group">
+                                <label for="description">Описание</label>
+                                <textarea class="form-control" id="description" name="description" rows="3">{{ object.description }}</textarea>
+                            </div>
+                            <!-- Изображение новости -->
+                            <div class="form-group">
+                                <label for="image">Изображение</label>
+                                <input type="file" class="form-control-file" id="image" name="image">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                        <button type="button" class="btn btn-primary" onclick="submitEditForm()">Сохранить изменения</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-</div>
 
 {% endblock %}
 
 {% block javascript %}
-
+<!-- Редактирование комментария -->
 <script>
-$(document).ready(function() {
-    $('.edit-comment').click(function() {
-        var url = $(this).data('url');
-        $('#editCommentForm').attr('action', url);
-        $('#editCommentModal').modal('show');
+    $(document).ready(function() {
+        // Обработчик нажатия на кнопку редактирования комментария
+        $('.edit-comment').click(function() {
+            // Получение URL и текста комментария
+            var url = $(this).data('url');
+            var text = $(this).data('text');  
+            // Установка URL и текста комментария в форме редактирования
+            $('#editCommentForm').attr('action', url);
+            $('#id_text').val(text);
+            // Отображение модального окна
+            $('#editCommentModal').modal('show');
+        });
     });
-});
 </script>
 
-{% endblock %}
+<!-- Удаление поста -->
+<script>
+    function deletePost(postId) {
+        $.ajax({
+            url: '/news/post/delete/' + postId + '/',
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            success: function(response) {
+                if(response.status === 'success') {
+                    // Если удаление прошло успешно, перенаправляем пользователя на страницу со всеми новостными сообщениями
+                    window.location.href = '/news/';
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            }
+        });
+    }
+    
+    // Функция для получения значения cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
 
+<!-- Редактирование поста -->
+<script>
+function submitEditForm() {
+    let form = $("#editForm");
+    let formData = new FormData(form[0]);
+    $.ajax({
+        url: form.attr("action"),
+        type: form.attr("method"),
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response){
+            if(response.status === "success"){
+                // Если сохранение прошло успешно, закрываем модальное окно и перенаправляем пользователя на страницу поста
+                $("#editModal").modal('hide');
+                window.location.href = '/news/post/' + response.post_id + '/';
+            } else {
+                alert('Error: ' + JSON.stringify(response.errors));
+            }
+        }
+    });
+}
+</script>
+
+
+{% endblock %}

@@ -47,7 +47,9 @@ INSTALLED_APPS = [
 
     #apps
     'apps.exchange',
-    'apps.news'
+    'apps.news',
+    'apps.reviews',
+    'apps.my_templatetags',
 ]
 
 MIDDLEWARE = [

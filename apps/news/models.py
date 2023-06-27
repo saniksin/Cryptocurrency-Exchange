@@ -29,7 +29,7 @@ class Like(models.Model):
 class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     post = models.ForeignKey(NewsPost, on_delete=models.CASCADE, related_name="post_comments")
-    text = models.CharField("Комментарий", max_length=150)
+    text = models.CharField("Комментарий", max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

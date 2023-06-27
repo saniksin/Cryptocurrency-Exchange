@@ -1,8 +1,22 @@
 {% extends "base.html" %}
+{% load message_tags %}
 
 {% block title %}Новости{% endblock %}
 
 {% block content %}
+    <!-- Итог взаимодействия -->  
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags|bootstrap}} alert-dismissible fade show text-center" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
 <div class="container my-4">
   <div class="row justify-content-between mb-4">
     <div class="col-auto">

@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
@@ -9,7 +8,7 @@ from apps.users.forms import (
 )
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import update_session_auth_hash
-
+from django.contrib import messages
 
 # Create your views here.
 class UserLoginView(View):
@@ -27,6 +26,7 @@ class UserLoginView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    messages.success(request, 'Вы успешно вошли в систему!')
                     return redirect('index')
                 else:
                     return render(request, 'login.html', {'form': form, 'error': 'Ваш аккаунт не активен.'})
@@ -38,6 +38,7 @@ class UserLoginView(View):
 def user_logout(request):
     if request.user.is_authenticated:
         logout(request)
+    messages.success(request, 'Вы успешно вышли!')
     return redirect("index")
 
 
@@ -65,6 +66,7 @@ class MyPasswordChangeView(auth_views.PasswordChangeView):
 
     def form_valid(self, form):
         update_session_auth_hash(self.request, self.request.user)
+        messages.success(self.request, 'Пароль успешно изменен!')
         return super().form_valid(form)
 
 

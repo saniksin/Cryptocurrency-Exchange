@@ -161,9 +161,9 @@
 
     {% endblock %}
 
-    <footer class="footer mt-auto py-3 bg-dark text-light">
-        <div class="container py-3">
-            <div class="row">
+    <footer class="footer bg-dark text-light">
+        <div class="container py-2">
+            <div class="row text-center">
                 <div class="col-sm-4">
                     <h5 class="text-uppercase">Часы работы</h5>
                     <p>Понедельник - Пятница, 9:00 - 18:00</p>
@@ -178,13 +178,17 @@
                     <p>+8 800-535-3535</p>
                 </div>
             </div>
-            <div class="row justify-content-center mt-3">
+            <div class="row justify-content-center my-2">
+                <a href="{% url 'notice' %}" class="text-info">Предупреждение</a>
+            </div>
+            <div class="row justify-content-center my-2">
                 <a href="https://www.instagram.com/yourusername" class="mx-2"><i class="fab fa-instagram fa-2x"></i></a>
                 <a href="https://t.me/yourusername" class="mx-2"><i class="fab fa-telegram fa-2x"></i></a>
                 <a href="https://twitter.com/yourusername" class="mx-2"><i class="fab fa-twitter fa-2x"></i></a>
             </div>
         </div>
     </footer>
+    
 
     <!-- Подключение скриптов Bootstrap -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -201,10 +205,8 @@
             });
         });
     </script>
-
     {% block javascript %}
 
     {% endblock %}
-    
 </body>
 </html>

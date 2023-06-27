@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib import admin
 from apps.news.models import NewsPost, Comment
 
 
@@ -14,12 +15,13 @@ class CommentForm(forms.ModelForm):
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 3,
-            'maxlength': 150,
-            'placeholder': 'Ваш комментарий... (максимум 150 символов)'
+            'maxlength': 200,
+            'placeholder': 'Ваш комментарий... (максимум 200 символов)'
         })
     )
 
     class Meta:
         model = Comment
         fields = ('text',)
+
 
