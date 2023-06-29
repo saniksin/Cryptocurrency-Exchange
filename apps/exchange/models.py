@@ -1,53 +1,70 @@
 from django.db import models
 from apps.users.models import User
+from django.utils import timezone
+from datetime import timedelta
+
 
 def upload_to(instance, filename):
     return 'images/%s/%s' % (instance.name, filename)
 
+# Криптовалюта
 class Cryptocurrency(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10)
     image = models.ImageField(upload_to=upload_to)
-    current_price = models.DecimalField(max_digits=18, decimal_places=8)
+    current_price_usd = models.DecimalField(max_digits=20, decimal_places=10, default=0.0)
+    current_price_pln = models.DecimalField(max_digits=20, decimal_places=10, default=0.0)  
+    current_price_rub = models.DecimalField(max_digits=20, decimal_places=10, default=0.0) 
+    current_price_uah = models.DecimalField(max_digits=20, decimal_places=10, default=0.0)
+    reception_address = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.name
     
+    class Meta:
+        verbose_name = "Криптовалюта"
+        verbose_name_plural = "Криптовалюты"
 
+
+# Фиатная валюта    
 class FiatCurrency(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10)
     image = models.ImageField(upload_to=upload_to)
     # курс валюты к доллару США
-    current_price = models.DecimalField(max_digits=15, decimal_places=2)
+    current_price_usd = models.DecimalField(max_digits=20, decimal_places=10, default=0.0)
+    reception_address = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Фиат"
+        verbose_name_plural = "Фиатные валюты"
 
-class ExchangeRate(models.Model):
-    from_currency = models.ForeignKey(Cryptocurrency, on_delete=models.CASCADE, related_name="from_currency")
-    to_currency = models.ForeignKey(FiatCurrency, on_delete=models.CASCADE, related_name="to_currency")
-    rate = models.DecimalField(max_digits=15, decimal_places=2)
 
-    def __str__(self):
-        return f"{self.from_currency.code} to {self.to_currency.code}"
-    
-
+# Транзакция
 class Transaction(models.Model):
     STATUS_CHOICES = [
-        ('P', 'В процессе'),
-        ('C', 'Завершена'),
-        ('A', 'Отменена'),
+        ('Waiting', 'Ожидает оплаты'),
+        ('Cancel', 'Отменена'),
+        ('UserPaid', 'Оплачена пользователем'),
+        ('Finish', 'Завершена'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    from_currency = models.ForeignKey(Cryptocurrency, on_delete=models.CASCADE)
-    to_currency = models.ForeignKey(FiatCurrency, on_delete=models.CASCADE)
-    exchange_rate = models.DecimalField(max_digits=15, decimal_places=2)
-    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    email = models.EmailField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    unique_transaction_number = models.CharField(max_length=40, unique=True)
+    selling_currency = models.CharField(max_length=100)
+    selling_amount = models.DecimalField(max_digits=20, decimal_places=10)
+    buying_currency = models.CharField(max_length=100)
+    buying_amount = models.DecimalField(max_digits=20, decimal_places=10)
+    user_reception_address = models.CharField(max_length=255)
+    recipient_name = models.CharField(max_length=255)
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P')  # новое поле
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Waiting')
+    reception_address = models.CharField(max_length=255)
 
-    def __str__(self):
-        return f"{self.user.username} exchanged {self.amount} {self.from_currency.code} to {self.to_currency.code}"
+    class Meta:
+        verbose_name = "Транзакция"
+        verbose_name_plural = "Транзакции"

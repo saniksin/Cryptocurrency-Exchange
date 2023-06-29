@@ -15,7 +15,7 @@
         {% endfor %}
     {% endif %}
 
-<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+<div class="d-flex justify-content-center align-items-center" style="height: 90vh;">
 <div class="container mt-4">
     <div class="text-center">
     <h2>Добро пожаловать на криптообменник!</h2>
@@ -29,37 +29,42 @@
                 <div class="card-body">
                     <h5 class="card-title">Обмен криптовалют</h5>
                     <hr>
-                    <form>
+
+                    <form id="exchangeForm" method="get" action="{% url 'confirm' %}">
+                        {% csrf_token %}
                         <div class="form-group">
                             <label for="fromCurrency">Продаете</label>
-                            <select class="form-control select2" id="fromCurrency">
-                                <option value="bitcoin" data-image="{% static 'assets/images/bitcoin.png' %}">Bitcoin</option>
-                                <option value="ethereum" data-image="{% static 'assets/images/ethereum.png' %}">Ethereum</option>
+                            <select class="form-control select2" id="fromCurrency" name="selling_currency">
+                                {% for crypto in cryptocurrencies %}
+                                    <option value="{{ crypto.code }}" data-image="{{ crypto.image.url }}" data-type="crypto">{{ crypto.name }}</option>
+                                {% endfor %}
+                                {% for fiat in fiat_currencies %}
+                                    <option value="{{ fiat.code }}" data-image="{{ fiat.image.url }}" data-type="fiat">{{ fiat.name }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="amount">Количество</label>
-                            <input type="text" class="form-control" id="amount">
+                            <input type="text" class="form-control" id="amount" name="selling_amount" maxlength="10">
+                            <div id="amountWarning" class="text-danger" style="display: none;">.</div>
+                            <div id="maxAmountWarning" class="text-danger" style="display: none;"></div>
                         </div>
                         <hr>
                         <div class="form-group">
                             <label for="toCurrency">Получаете</label>
-                            <select class="form-control select2" id="toCurrency">
-                                <option value="bitcoin" data-image="{% static 'assets/images/bitcoin.png' %}">Bitcoin</option>
-                                <option value="ethereum" data-image="{% static 'assets/images/ethereum.png' %}">Ethereum</option>
-                              
+                            <select class="form-control select2" id="toCurrency" name="buying_currency">
+                                <!-- Опции будут заполнены динамически -->
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="result">Получаемое количество</label>
-                            <input type="text" class="form-control" id="result">
+                            <input type="text" class="form-control" id="result" name="buying_amount" maxlength="15" readonly>
                         </div>
                     </form>
-                    
                 </div>
                 <div class="mt-auto p-3 d-flex justify-content-center">
-                    <button type="submit" class="btn btn-primary text-center">Обменять</button>
-                </div>
+                    <button type="submit" form="exchangeForm" class="btn btn-secondary text-center" id="exchangeButton" disabled>Обменять</button>
+                </div>                
             </div>
         </div>
 
@@ -95,4 +100,168 @@
     </div>
 </div>
 </div>
+{% endblock %}
+
+{% block javascript %}
+
+<!-- Блок 1: Инициализация и подготовка данных -->
+<script>
+    // Получение ссылок на элементы формы
+    var fromCurrency = document.getElementById('fromCurrency');
+    var toCurrency = document.getElementById('toCurrency');
+    var amountInput = document.getElementById('amount');
+    var resultInput = document.getElementById('result');
+    var amountWarning = document.getElementById('amountWarning');
+    var exchangeButton = document.getElementById('exchangeButton');
+
+    // Инициализация списка вариантов для криптовалют и фиатных валют
+    var cryptoOptions = '';
+    var fiatOptions = '';
+    {% for crypto in cryptocurrencies %}
+        cryptoOptions += '<option value="{{ crypto.code }}" data-image="{{ crypto.image.url }}">{{ crypto.name }}</option>';
+    {% endfor %}
+    {% for fiat in fiat_currencies %}
+        fiatOptions += '<option value="{{ fiat.code }}" data-image="{{ fiat.image.url }}">{{ fiat.name }}</option>';
+    {% endfor %}
+</script>
+
+<!-- Блок 2: Определение функции для обновления валюты -->
+<script>
+    function updateOptions() {
+        var fromType = fromCurrency.options[fromCurrency.selectedIndex].dataset.type;
+        if (fromType === 'crypto') {
+            toCurrency.innerHTML = fiatOptions;
+        } else {
+            toCurrency.innerHTML = cryptoOptions;
+        }
+    }
+</script>
+
+<!-- Блок 3: Определение функции для обновления результата -->
+<script>
+    function updateResult(data) {
+        var result = data.result.toString();
+        resultInput.value = result.substring(0, 10);
+    }
+</script>
+
+<!-- Блок 4: Определение функции для проверки состояния кнопки -->
+<script>
+    // Функция для проверки состояния кнопки и суммы обмена
+    function checkButtonState(data) {
+        var fromCode = fromCurrency.value;
+        var toCode = toCurrency.value;
+        var amount = parseFloat(amountInput.value.replace(',', '.'));
+        var minDeal = parseFloat("{{ MIN_DEAL }}");
+        var maxDeal = parseFloat("{{ MAX_DEAL }}");
+
+        // Проверка, что введенное значение является числом
+        if (!fromCode || !toCode || isNaN(amount) || amount === '') {
+            disableButton(`Введите корректное числовое значение для суммы обмена`);
+            return;
+        }
+
+        // Проверка минимальной и максимальной суммы сделки
+        if (data) {
+        var formattedEquivalent = data.usd_equivalent.toFixed(2);
+        if (data.usd_equivalent < minDeal) {
+            disableButton(`Минимальная сумма сделки: ${minDeal} USD. Текущий эквивалент: ${formattedEquivalent} USD.`);
+            return;
+        } else if (data.usd_equivalent > maxDeal) {
+            disableButton(`Максимальная сумма сделки: ${maxDeal} USD. Текущий эквивалент: ${formattedEquivalent} USD.`);
+            return;
+        }
+        } else if (amount === '' || isNaN(amount)) {
+            disableButton(`Введите корректное числовое значение для суммы обмена`);
+            return;
+        }
+
+        // Все параметры верны, активируем кнопку обмена
+        enableButton();
+        if (data) {
+            updateResult(data);
+        }
+    }
+</script>
+
+<!-- Блок 5: Определение функции для отключения кнопки -->
+<script>
+    function disableButton(message) {
+        amountWarning.innerHTML = message;
+        amountWarning.style.display = 'block';
+        exchangeButton.disabled = true;
+        exchangeButton.classList.remove('btn-primary');
+        exchangeButton.classList.add('btn-secondary');
+    }
+</script>
+
+<!-- Блок 6: Определение функции для включения кнопки -->
+<script>
+    function enableButton() {
+        amountWarning.style.display = 'none';
+        exchangeButton.disabled = false;
+        exchangeButton.classList.remove('btn-secondary');
+        exchangeButton.classList.add('btn-primary');
+    }
+</script>
+
+<!-- Блок 7: Запуск процесса и привязка обработчиков -->
+<script>
+    // Начинаем с отключения кнопки обмена
+    exchangeButton.disabled = true;
+
+    // Назначение обработчиков событий
+    fromCurrency.onchange = function() {
+        updateOptions();
+        fetchRate();
+    }
+    toCurrency.onchange = function() {
+        fetchRate();
+    }
+    amountInput.oninput = function() {
+        fetchRate();
+    }
+
+    // Обновляем функцию fetchRate для проверки всех параметров после каждого запроса к API
+    function fetchRate() {
+    var fromCode = fromCurrency.value;
+    var toCode = toCurrency.value;
+    var amount = amountInput.value.replace(',', '.');
+
+    if (amount) {
+        fetch(`/api/exchange_rate/?from=${fromCode}&to=${toCode}&amount=${amount}`)
+            .then(response => response.json())
+            .then(data => {
+                checkButtonState(data);
+            });
+        } else {
+            checkButtonState(null); // вместо checkButtonState();
+        }
+    }
+
+    // Вызов функции при загрузке страницы
+    window.onload = function() {
+        updateOptions();
+        checkButtonState();
+    }
+</script>
+
+<!-- Блок 8: Обработка события отправки формы -->
+<script>
+form.onsubmit = function(event) {
+    event.preventDefault(); // Остановить стандартную отправку формы
+    // Собрать данные формы
+    var fromCode = fromCurrency.value;
+    var toCode = toCurrency.value;
+    var amount = parseFloat(amountInput.value);
+    var result = parseFloat(resultInput.value);
+    // Формировать URL
+    var url = `/confirm/?selling_currency=${fromCode}&selling_amount=${amount}&buying_currency=${toCode}&buying_amount=${result}`;
+    // Установить значение в сессии
+    sessionStorage.setItem('submitted', 'true');
+    // Перенаправление на страницу подтверждения
+    window.location.href = url;
+}
+</script>
+
 {% endblock %}

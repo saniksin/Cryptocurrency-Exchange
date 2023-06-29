@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load message_tags %}
+
+{% block content %}
+
+    <!-- Итог взаимодействия -->  
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags|bootstrap}} alert-dismissible fade show text-center" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Детали транзакции</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Уникальный номер транзакции:</strong> {{ transaction.unique_transaction_number }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Email:</strong> {{ transaction.email }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Продаете (валюта):</strong> {{ transaction.selling_currency }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Продаете (сумма):</strong> {{ transaction.selling_amount }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Покупаете (валюта):</strong> {{ transaction.buying_currency }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Покупаете (сумма):</strong> {{ transaction.buying_amount }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Адрес или номер карты для получения:</strong> {{ transaction.user_reception_address }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Имя и фамилия получателя:</strong> {{ transaction.recipient_name }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Статус транзакции:</strong> {{ transaction.get_status_display }}
+                        </li>
+                        <li class="list-group-item text-center">
+                            <strong>Ждем оплату {{ transaction.selling_currency }}</strong> 
+                            <div>{{ transaction.reception_address }}</div>
+                            <small class="form-text text-muted">Как только отправите деньги/криптовалюту можете нажимать на кнопку "Отметить как оплаченную"</small>
+                        </li>                                           
+                    </ul>
+                    <div class="text-center mt-4">
+                        {% if transaction.status == 'Waiting' %}
+                            <form class="d-inline-block" action="{% url 'mark_paid' unique_transaction_number=transaction.unique_transaction_number %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Отметить как оплаченную</button>
+                            </form>
+                            <form class="d-inline-block" action="{% url 'cancel_transaction' unique_transaction_number=transaction.unique_transaction_number %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Отменить транзакцию</button>
+                            </form>
+                        {% endif %}
+                        {% if transaction.status != 'Waiting' %}
+                            <a href="{% url 'index' %}" class="btn btn-primary">Вернуться на главную</a>
+                        {% endif %}
+                    </div>
+                    <hr>
+                    <div class="text-center mt-4">
+                        <a href="#" class="btn btn-info">Обратиться в поддержку</a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

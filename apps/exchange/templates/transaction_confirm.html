@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Проверьте данные и заполните пустые значения!</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'confirm' %}">
+                        {% csrf_token %}
+                        {{ form.transaction_id }}
+                        <ul class="list-group list-group-flush">
+                            {% if form.email.value %}
+                                <!-- форма и список объединены в один блок -->
+                                <li class="list-group-item">
+                                    <strong>Email:</strong> {{ form.email.value }} {{ form.email.as_hidden }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Продаете (валюта):</strong> {{ form.selling_currency.value }}{{ form.selling_currency.as_hidden }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Продаете (сумма):</strong> {{ form.selling_amount.value }}{{ form.selling_amount.as_hidden }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Покупаете (валюта):</strong> {{ form.buying_currency.value }}{{ form.buying_currency.as_hidden }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Покупаете (сумма):</strong> <span id="buyingAmount"></span><input type="hidden" name="buying_amount" id="buyingAmountHidden">
+                                </li>
+                            {% else %}
+                                <!-- форма и список объединены в один блок -->
+                                <li class="list-group-item">
+                                    <strong>Email:</strong> <input type="email" class="form-control" id="email" name="email" required>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Продаете (валюта):</strong> {{ form.selling_currency.value }}{{ form.selling_currency.as_hidden }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Продаете (сумма):</strong> {{ form.selling_amount.value }}{{ form.selling_amount.as_hidden }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Покупаете (валюта):</strong> {{ form.buying_currency.value }}{{ form.buying_currency.as_hidden }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Покупаете (сумма):</strong> {{ form.buying_amount.value }}{{ form.buying_amount.as_hidden }}
+                                </li>
+                            {% endif %}
+                            <li class="list-group-item">
+                                <strong>Адрес или номер карты для получения:</strong> {{ form.receiving_address }}
+                                <small class="form-text text-muted">Адрес получения криптовалюты или банковская карта не должны принадлежать третьим лицам.</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Имя и фамилия получателя:</strong> {{ form.recipient_name }}
+                                <small class="form-text text-muted">Отправителем и получателем должно быть одно и тоже лицо.</small>
+                            </li>
+                        </ul>
+                        <!-- блоки чекбоксов и кнопка подтверждения обособлены в другой блок -->
+                        <div class="mt-4">
+                            <div id="dealWarning" class="text-danger" style="display: none;">
+                                Сумма, которую можно получить, должна быть в диапазоне от {{ MIN_DEAL }} до {{ MAX_DEAL }} долларов США или их эквивалента.
+                                <br>
+                                <hr>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="amlCheck" required>
+                                <label class="form-check-label" for="amlCheck">
+                                    Я подтверждаю, что ознакомлен с <a href="{% url 'aml' %}">AML информацией</a>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="rulesCheck" required>
+                                <label class="form-check-label" for="rulesCheck">
+                                    Я соглашаюсь с <a href="{% url 'rules' %}">правилами обмена</a>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="noticeCheck" required>
+                                <label class="form-check-label" for="noticeCheck">
+                                    Я прочитал и понял <a href="{% url 'notice' %}">предупреждения</a>
+                                </label>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="text-center mt-4">
+                            <p>Вы хотите продолжить обмен? {{ form.transaction_id }}</p>
+                            <button type="submit" class="btn btn-primary mr-2" id="exchangeButton">Да</button>
+                            <a href="{% url 'index' %}" class="btn btn-danger">Нет</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block javascript %}
+
+<!-- Блок 1: Инициализация и подготовка данных -->
+<script>
+window.onload = function() {
+    var sellingCurrency = "{{ form.selling_currency.value }}";
+    var buyingCurrency = "{{ form.buying_currency.value }}";
+    var sellingAmount = "{{ form.selling_amount.value }}";
+    sellingAmount = sellingAmount.replace(',', '.');
+
+    fetch(`/api/exchange_rate/?from=${sellingCurrency}&to=${buyingCurrency}&amount=${sellingAmount}`)
+        .then(response => response.json())
+        .then(data => {
+            var buyingAmount = data.result;
+            // Вставить значение в форму
+            var buyingAmountElement = document.getElementById("buyingAmount");
+            buyingAmountElement.innerHTML = buyingAmount;
+            // Установить значение в скрытом поле формы
+            var buyingAmountHiddenElement = document.getElementById("buyingAmountHidden");
+            buyingAmountHiddenElement.value = buyingAmount;
+            // Проверить сумму сделки
+            checkDealAmount(data.usd_equivalent); // Изменено на data.usd_equivalent
+        });
+};
+
+// Функция для проверки суммы сделки и состояния кнопки
+function checkDealAmount(buyingAmount) {
+    var minDeal = parseFloat("{{ MIN_DEAL }}");
+    var maxDeal = parseFloat("{{ MAX_DEAL }}");
+    var dealWarning = document.getElementById("dealWarning");
+    var exchangeButton = document.getElementById("exchangeButton");
+
+    if (buyingAmount < minDeal || buyingAmount > maxDeal) {
+        dealWarning.style.display = "block";
+        exchangeButton.disabled = true;
+    } else {
+        dealWarning.style.display = "none";
+        exchangeButton.disabled = false;
+    }
+}
+
+</script>
+
+
+
+{% endblock %}

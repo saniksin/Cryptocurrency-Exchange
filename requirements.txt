@@ -2,3 +2,6 @@ django==4.2.1
 python-dotenv==1.0.0
 requests==2.31.0
 Pillow==9.5.0
+pycoingecko==3.1.0
+py-currency-converter==1.2.0
+djangorestframework==3.14.0

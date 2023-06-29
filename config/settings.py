@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from decimal import Decimal
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -35,7 +37,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    #users
+    # apps user before admin and admin.auth
     'apps.users',
 
     'django.contrib.admin',
@@ -45,11 +47,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #apps
+    # library
+    'rest_framework',
+
+    # apps
     'apps.exchange',
     'apps.news',
     'apps.reviews',
     'apps.my_templatetags',
+    'apps.api',
 ]
 
 MIDDLEWARE = [
@@ -153,3 +159,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 LOGIN_URL = 'login'
+
+# комиссия обменника в % 0.01 = 1%
+EXCHANGE_FEE = Decimal(0.05)
+
+MIN_DEAL = 10
+MAX_DEAL = 15000
