@@ -5,3 +5,4 @@ Pillow==9.5.0
 pycoingecko==3.1.0
 py-currency-converter==1.2.0
 djangorestframework==3.14.0
+aiogram==2.25.1

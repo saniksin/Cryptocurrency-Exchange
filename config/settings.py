@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # site 
+    'django.contrib.sites',
+
     # library
     'rest_framework',
 
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
     'apps.reviews',
     'apps.my_templatetags',
     'apps.api',
+    'apps.telegrambot',
 ]
 
 MIDDLEWARE = [
@@ -163,5 +167,13 @@ LOGIN_URL = 'login'
 # комиссия обменника в % 0.01 = 1%
 EXCHANGE_FEE = Decimal(0.05)
 
+# Минимальная и максимальная сумма сделки в $
 MIN_DEAL = 10
 MAX_DEAL = 15000
+
+# Сайт ID, так же домен в ALLOWED_HOSTS = [] добавить!
+SITE_ID = 2
+
+# Telegram Bot API key
+TELEGRAM_API = os.getenv("TELEGRAM_BOT")
+ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")

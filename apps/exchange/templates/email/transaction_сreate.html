@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Подтверждение транзакции</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .content {
+            padding: 20px;
+        }
+        .cont-foot {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eaeaea;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            color: #fff; /* Изменение цвета текста на белый */
+            font-weight: bold; /* Делаем текст жирным */
+            text-decoration: none;
+            border-radius: 5px;
+            width: 40%;
+            text-align: center;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        .form-text {
+            font-size: 0.8em;
+            color: #888;
+        }
+        a {
+            color: #000;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cont-foot">
+        <h2>Здравствуйте!</h2>
+        <p>Ваша транзакция успешно создана. Вот детали:</p>
+        </div>
+        <div class="content">
+            <p><strong>Уникальный номер транзакции:</strong> {{ transaction.unique_transaction_number }}</p>
+            <p><strong>Email:</strong> {{ transaction.email }}</p>
+            <p><strong>Продаете (валюта):</strong> {{ transaction.selling_currency }}</p>
+            <p><strong>Продаете (сумма):</strong> {{ transaction.selling_amount }}</p>
+            <p><strong>Покупаете (валюта):</strong> {{ transaction.buying_currency }}</p>
+            <p><strong>Покупаете (сумма):</strong> {{ transaction.buying_amount }}</p>
+            <p><strong>Адрес или номер карты для получения:</strong> {{ transaction.user_reception_address }}</p>
+            <p><strong>Имя и фамилия получателя:</strong> {{ transaction.recipient_name }}</p>
+            <p><strong>Статус транзакции:</strong> {{ transaction.get_status_display }}</p>
+            <div class="cont-foot">
+            <p>
+                <strong>Ждем оплату {{ transaction.selling_currency }}</strong><br>
+                <span>{{ transaction.reception_address }}</span><br>
+                <span class="form-text">Как только отправите деньги обязательно нажмите на кнопку "Отметить как оплаченную"</span>
+            </p>
+            </div>
+        </div>
+        <div class="cont-foot">
+            <a href="{{ protocol }}://{{ domain }}/transaction/info/{{ transaction.unique_transaction_number }}/" class="btn btn-success">Посмотреть детали транзакции</a>
+            <a href="#" class="btn btn-info">Обратиться в поддержку</a>
+        </div>
+    </div>
+</body>
+</html>

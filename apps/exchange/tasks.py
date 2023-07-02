@@ -1,3 +1,4 @@
+import logging
 from pycoingecko import CoinGeckoAPI
 from py_currency_converter import convert
 
@@ -5,6 +6,25 @@ from apps.exchange.models import Cryptocurrency, FiatCurrency
 
 
 def update_exchange_rates():
+    # Создаем логгер внутри функции
+    logger = logging.getLogger('update_rates')
+    logger.setLevel(logging.INFO)
+
+    # Прекратить передачу сообщений логгера к вышестоящим обработчикам
+    logger.propagate = False
+
+    # Добавляем обработчик, который записывает сообщения в файл 'update_rates.log'
+    handler = logging.FileHandler('apps/exchange/logfile/update_rates.log')
+    handler.setLevel(logging.INFO)
+
+
+    # Создаем форматтер и добавляем его в обработчик
+    formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+    handler.setFormatter(formatter)
+
+    # Добавляем обработчик к логгеру
+    logger.addHandler(handler)
+
     cg = CoinGeckoAPI()
 
     # Обновление курсов для криптовалют
@@ -29,3 +49,6 @@ def update_exchange_rates():
     for code, rate in fiat_rates.items():
         FiatCurrency.objects.filter(code=code.upper()).update(current_price_usd=(1/rate))
 
+    # Логируем успешное выполнение
+    logger.info('Курсы успешно обновлены.')
+    logger.removeHandler(handler)

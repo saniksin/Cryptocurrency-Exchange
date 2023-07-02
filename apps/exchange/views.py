@@ -1,3 +1,4 @@
+import asyncio
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView
 from apps.reviews.models import Review
@@ -6,6 +7,10 @@ from apps.exchange.forms import ExchangeForm
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
+from django.contrib.sites.models import Site
+from django.template.loader import get_template
+from apps.telegrambot.handlers import notify_admin
 
 
 # Главная страница
@@ -65,6 +70,7 @@ def confirm(request):
                 recipient_name=form.cleaned_data['recipient_name'],
                 reception_address=currency.reception_address,
             )
+            
 
             return redirect('transaction_info', unique_transaction_number=transaction.unique_transaction_number)
         
@@ -87,6 +93,24 @@ def confirm(request):
 def transaction_info(request, unique_transaction_number):
     if request.method == 'GET':
         transaction = Transaction.objects.get(unique_transaction_number=unique_transaction_number)
+
+        сontext = {
+        'transaction': transaction,
+        'protocol': 'http' if settings.DEBUG else 'https',
+        'domain': Site.objects.get_current().domain,
+        }
+
+        email_subject = 'Транзакция успешно создана'
+        html_content = get_template('email/transaction_сreate.html').render(сontext)
+        msg = EmailMessage(
+            email_subject, 
+            html_content, 
+            settings.DEFAULT_FROM_EMAIL, 
+            [transaction.email]
+        )
+        msg.content_subtype = "html"
+        msg.send()
+
         return render(request, 'transaction_info.html', {'transaction': transaction})
 
 
@@ -96,6 +120,11 @@ def mark_transaction_as_paid(request, unique_transaction_number):
     transaction.status = 'UserPaid'
     transaction.save()
     messages.success(request, 'Вы отметили транзакцию как оплаченную. Ожидайте оплаты администратором')
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(notify_admin(transaction))
+
     return redirect('transaction_info', unique_transaction_number=transaction.unique_transaction_number)
 
 
