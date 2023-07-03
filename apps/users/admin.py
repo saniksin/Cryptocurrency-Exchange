@@ -1,8 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
-from django.contrib.auth.models import Group
+from django.contrib.auth.admin import UserAdmin
+
 from apps.users.models import User
 
+
+# Модель админки User
+@admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_staff', 'is_superuser')
     list_filter = ('is_staff', 'is_superuser')
@@ -18,7 +21,4 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('username', 'email', 'password1', 'password2'),
         }),
     )
-
-
-admin.site.register(User, CustomUserAdmin)
 

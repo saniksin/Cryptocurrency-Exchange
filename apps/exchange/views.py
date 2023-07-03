@@ -1,15 +1,17 @@
 import asyncio
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView
-from apps.reviews.models import Review
-from apps.exchange.models import Cryptocurrency, FiatCurrency, Transaction
-from apps.exchange.forms import ExchangeForm
+
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
-from django.contrib.sites.models import Site
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
+from django.views.generic import TemplateView
+
+from apps.exchange.forms import ExchangeForm
+from apps.exchange.models import Cryptocurrency, FiatCurrency, Transaction
+from apps.reviews.models import Review
 from apps.telegrambot.handlers import notify_admin
 
 
@@ -45,6 +47,7 @@ class NoticeView(TemplateView):
     template_name = 'notice.html'
 
 
+# Пользователь подтверждает создание транзакции
 def confirm(request):
     context = {}
     context['MIN_DEAL'] = settings.MIN_DEAL
@@ -86,7 +89,6 @@ def confirm(request):
             form = ExchangeForm(initial=initial_data)
 
     return render(request, 'transaction_confirm.html', {'form': form, **context})
-
 
 
 # Окно информации о созданной транзакции
@@ -135,3 +137,4 @@ def cancel_transaction(request, unique_transaction_number):
     transaction.save()
     messages.error(request, 'Вы отменили транзакцию.')
     return redirect('index')
+

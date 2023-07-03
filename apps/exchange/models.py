@@ -1,11 +1,12 @@
 from django.db import models
+
 from apps.users.models import User
-from django.utils import timezone
-from datetime import timedelta
 
 
+# Изменение имени картинки и путь к сохранению
 def upload_to(instance, filename):
     return 'images/%s/%s' % (instance.name, filename)
+
 
 # Криптовалюта
 class Cryptocurrency(models.Model):
@@ -68,3 +69,4 @@ class Transaction(models.Model):
     class Meta:
         verbose_name = "Транзакция"
         verbose_name_plural = "Транзакции"
+

@@ -1,17 +1,17 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import DetailView
-from apps.news.models import NewsPost, Like, Comment
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from apps.news.forms import NewsPostForm, CommentForm
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect, HttpResponseForbidden
-from django.urls import reverse, reverse_lazy
-from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.http import JsonResponse
-from django.contrib import messages
+from django.views.generic import DetailView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+
+from apps.news.forms import CommentForm, NewsPostForm
+from apps.news.models import Comment, Like, NewsPost
 
 
 # Создание новостных постов

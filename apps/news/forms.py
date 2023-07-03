@@ -1,8 +1,9 @@
 from django import forms
-from django.contrib import admin
+
 from apps.news.models import NewsPost, Comment
 
 
+# форма нового поста
 class NewsPostForm(forms.ModelForm):
 
     class Meta:
@@ -10,6 +11,7 @@ class NewsPostForm(forms.ModelForm):
         fields = ['title', 'description', 'image']
 
 
+# форма комментария
 class CommentForm(forms.ModelForm):
     text = forms.CharField(
         widget=forms.Textarea(attrs={
@@ -23,5 +25,4 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('text',)
-
 

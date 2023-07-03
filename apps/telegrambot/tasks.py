@@ -1,16 +1,16 @@
 from aiogram import Dispatcher
-from django.conf import settings
-from apps.telegrambot.config import bot, admin
-from apps.telegrambot.middleware import AccessMiddleware
+
+from apps.telegrambot.config import admin, bot
 from apps.telegrambot.handlers import (
-    send_welcome,
-    process_callback_cancel, 
-    process_callback_finish,
     block_user,
-    unblock_user,
-    forward_to_admin, 
+    forward_to_admin,
+    process_callback_cancel,
+    process_callback_finish,
     reply_to_user,
+    send_welcome,
+    unblock_user,
 )
+from apps.telegrambot.middleware import AccessMiddleware
 
 
 async def start_bot():

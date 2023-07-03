@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load message_tags %}
+
+{% block title %} Обновить профиль {% endblock %}
+
+{% block content %}
+
+    <!-- Итог взаимодействия -->  
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags|bootstrap}} alert-dismissible fade show text-center" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card w-50">
+        <div class="card-header text-center">
+            <h2>Обновить профиль</h2>
+            <p class="text-muted">Пожалуйста, заполните следующие поля.</p>
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    Пожалуйста, проверьте введенные данные и попробуйте снова.
+                </div>
+            {% endif %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">Имя: </label>
+                    <input type="text" class="form-control" id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" placeholder="Введите ваше имя">
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Фамилия: </label>
+                    <input type="text" class="form-control" id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" placeholder="Введите вашу фамилию">
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.image.id_for_label }}">Загрузите изображение профиля</label>
+                    <input type="file" class="form-control-file" id="{{ form.image.id_for_label }}" name="{{ form.image.name }}">
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Обновить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

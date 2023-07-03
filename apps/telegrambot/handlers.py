@@ -1,13 +1,15 @@
-from aiogram import types
-from django.conf import settings
-from apps.telegrambot.config import bot, admin
-from django.contrib.sites.models import Site
-from apps.exchange.models import Transaction
-from apps.telegrambot.models import TelegramUser
-from asgiref.sync import sync_to_async
-from django.core.mail import send_mail
-from django.core.exceptions import ObjectDoesNotExist
 import re
+
+from aiogram import types
+from asgiref.sync import sync_to_async
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
+
+from apps.exchange.models import Transaction
+from apps.telegrambot.config import admin, bot
+from apps.telegrambot.models import TelegramUser
 
 
 # Создаем пользователя в бд 
@@ -174,3 +176,4 @@ async def reply_to_user(message: types.Message):
         user_id = re.search(r"(ID: )(\d+)", original_message.text).group(2)
 
         await bot.send_message(chat_id=user_id, text=message.text)
+

@@ -1,14 +1,19 @@
-from django.urls import path
-from apps.users import views
 from django.contrib.auth import views as auth_views
-from apps.users.forms import MyPasswordResetForm, CustomSetPasswordForm
+from django.urls import path
+
+from apps.users import views
+from apps.users.forms import CustomSetPasswordForm, MyPasswordResetForm
 
 
 urlpatterns = [
     path('login/', views.UserLoginView.as_view(), name='login'),
     path("logout/", views.user_logout, name="logout"),
     path('register/', views.register, name='register'),
-    
+
+    # Профиль пользователя
+    path('profile/', views.profile, name='profile'),
+    path('prifile/update/', views.update_profile, name='update_profile'),
+
     # Смена пароля 
     path('password-change/',
           views.MyPasswordChangeView.as_view(),
@@ -16,7 +21,7 @@ urlpatterns = [
     path('password-change/done/',
           views.MyPasswordChangeDoneView.as_view(),
           name='password_change_done'),
-        
+
     #Сброс пароля 
     path('password-reset/',
         auth_views.PasswordResetView.as_view(
@@ -35,3 +40,4 @@ urlpatterns = [
         auth_views.PasswordResetCompleteView.as_view(),
         name='password_reset_complete'),
 ]
+

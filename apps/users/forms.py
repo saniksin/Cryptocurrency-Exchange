@@ -1,13 +1,14 @@
 from django import forms
-from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth import password_validation
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.contrib.auth.forms import PasswordResetForm, PasswordResetForm
-from django.contrib.auth.forms import SetPasswordForm
+
 from apps.users.models import User
 
 
+# Форма логинки
 class LoginForm(forms.Form):
     username_or_email = forms.CharField(
         widget=forms.TextInput(attrs={"class":"form-control"}),
@@ -19,6 +20,7 @@ class LoginForm(forms.Form):
     )
 
 
+# Форма регистрации
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(
     label='Пароль', 
@@ -63,6 +65,7 @@ class RegistrationForm(forms.ModelForm):
         return cd['username']
 
 
+# Форма смена пароля
 class PasswordChangeForm(forms.Form):
     old_password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
@@ -106,6 +109,7 @@ class PasswordChangeForm(forms.Form):
             self.user.save()
 
 
+# Форма для ввода почты при смене пароля
 class MyPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'class': 'form-control'}),
@@ -113,6 +117,7 @@ class MyPasswordResetForm(PasswordResetForm):
     )
 
 
+# Форма для установки пароля юзером
 class CustomSetPasswordForm(SetPasswordForm):
     new_password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
@@ -123,3 +128,11 @@ class CustomSetPasswordForm(SetPasswordForm):
         strip=False,
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
     )
+
+
+# Профиль юзера
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'image']
+

@@ -1,10 +1,10 @@
-from django import forms
-from apps.exchange.models import Transaction
-
 import uuid
 from decimal import Decimal
 
+from django import forms
 
+
+# Форма для обмена
 class ExchangeForm(forms.Form):
     email = forms.EmailField(
         label='Email', 
@@ -46,3 +46,4 @@ class ExchangeForm(forms.Form):
             return Decimal(str(data).replace(',', '.'))
         except ValueError:
             raise forms.ValidationError("Введите число.")
+

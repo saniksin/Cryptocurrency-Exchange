@@ -1,12 +1,15 @@
 from decimal import Decimal, InvalidOperation
-from django.shortcuts import render
+
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
 from apps.exchange.models import Cryptocurrency, FiatCurrency
-from django.conf import settings
 
 
+# API которое отвечает за курсы
 @api_view(['GET'])
 def exchange_rate(request):
     from_code = request.GET.get('from')

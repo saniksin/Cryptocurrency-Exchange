@@ -1,12 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView
-from apps.reviews.models import Review
-from apps.reviews.forms import ReviewForm
-from django.http import HttpResponseForbidden
-from django.http import JsonResponse
 from django.contrib import messages
-from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import ListView
+
+from apps.reviews.forms import ReviewForm
+from apps.reviews.models import Review
 
 
 # Страница отзывов
@@ -52,7 +51,6 @@ def review_delete(request, pk):
     if request.user != review.user:
         messages.error(request, 'У вас нету прав на выполнение этой операции!')
         return HttpResponseForbidden("Вы не можете удалить этот отзыв!")
-    #review_pk = review.pk
     review.delete()
     messages.error(request, 'Отзыв успешно удален!')
     return redirect('reviews')

@@ -1,6 +1,8 @@
 from django import template
 
+
 register = template.Library()
+
 
 @register.filter(name='bootstrap')
 def bootstrap(message):

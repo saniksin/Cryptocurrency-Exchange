@@ -1,13 +1,14 @@
-from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram import types
-from asgiref.sync import sync_to_async
-from apps.telegrambot.models import TelegramUser
-from django.core.exceptions import ObjectDoesNotExist
-from apps.telegrambot.config import bot
-from apps.telegrambot.handlers import get_or_create_user
 from aiogram.dispatcher.handler import CancelHandler
+from aiogram.dispatcher.middlewares import BaseMiddleware
+from asgiref.sync import sync_to_async
+from django.core.exceptions import ObjectDoesNotExist
+
+from apps.telegrambot.handlers import get_or_create_user
+from apps.telegrambot.models import TelegramUser
 
 
+# Обработчик сообщений в случае блокировки пользователя
 class AccessMiddleware(BaseMiddleware):
     async def on_process_message(self, message: types.Message, data: dict):
         try:

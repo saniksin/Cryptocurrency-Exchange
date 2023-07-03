@@ -1,8 +1,11 @@
 import asyncio
+
 from django.core.management.base import BaseCommand, CommandError
+
 from apps.telegrambot.tasks import start_bot
 
 
+# Команда для запуска телеграмм бота
 class Command(BaseCommand):
     help = 'Запускает бота'
 
